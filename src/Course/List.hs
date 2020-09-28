@@ -169,8 +169,8 @@ filter =
   List a
   -> List a
   -> List a
-(++) =
-  error "todo: Course.List#(++)"
+(++) (a1 :. Nil) a2 = a1 :. a2
+(++) (a1 :. xs) a2 = a1 :. (xs ++ a2)
 
 infixr 5 ++
 
@@ -187,8 +187,8 @@ infixr 5 ++
 flatten ::
   List (List a)
   -> List a
-flatten =
-  error "todo: Course.List#flatten"
+flatten (list :. Nil) = list
+flatten (list :. xs) = list ++ (flatten xs)
 
 -- | Map a function then flatten to a list.
 --
@@ -204,8 +204,7 @@ flatMap ::
   (a -> List b)
   -> List a
   -> List b
-flatMap =
-  error "todo: Course.List#flatMap"
+flatMap f list = flatten $ P.fmap f list
 
 -- | Flatten a list of lists to a list (again).
 -- HOWEVER, this time use the /flatMap/ function that you just wrote.
