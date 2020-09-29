@@ -41,8 +41,7 @@ instance Functor ExactlyOne where
     (a -> b)
     -> ExactlyOne a
     -> ExactlyOne b
-  (<$>) =
-    error "todo: Course.Functor (<$>)#instance ExactlyOne"
+  (<$>) f (ExactlyOne a) = ExactlyOne (f a)
 
 -- | Maps a function on the List functor.
 --
@@ -71,8 +70,8 @@ instance Functor Optional where
     (a -> b)
     -> Optional a
     -> Optional b
-  (<$>) =
-    error "todo: Course.Functor (<$>)#instance Optional"
+  (<$>) f (Full a) = Full (f a)
+  (<$>) f Empty = Empty
 
 -- | Maps a function on the reader ((->) t) functor.
 --
@@ -83,8 +82,11 @@ instance Functor ((->) t) where
     (a -> b)
     -> ((->) t a)
     -> ((->) t b)
-  (<$>) =
-    error "todo: Course.Functor (<$>)#((->) t)"
+  -- i.e. feed the result of g into the input of f with g accepting t as an arg
+  -- so you can think of a function as an instance of a functor in that the
+  -- context is the return value/function and the first argument as the
+  -- parameter!?!?
+  (<$>) f g = f . g
 
 -- | Anonymous map. Maps a constant value on a functor.
 --
@@ -119,8 +121,7 @@ void ::
   Functor k =>
   k a
   -> k ()
-void =
-  error "todo: Course.Functor#void"
+void f = (<$>) (\_ -> ()) f
 
 -----------------------
 -- SUPPORT LIBRARIES --
