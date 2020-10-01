@@ -75,8 +75,8 @@ headOr ::
   a
   -> List a
   -> a
-headOr =
-  error "todo: Course.List#headOr"
+headOr _ (h :. _) = h
+headOr a Nil = a
 
 -- | The product of the elements of a list.
 --
@@ -91,8 +91,8 @@ headOr =
 product ::
   List Int
   -> Int
-product =
-  error "todo: Course.List#product"
+product (x :. xs) = x * product xs
+product Nil = 1
 
 -- | Sum the elements of the list.
 --
@@ -106,8 +106,8 @@ product =
 sum ::
   List Int
   -> Int
-sum =
-  error "todo: Course.List#sum"
+sum (x :. xs) = x + sum xs
+sum Nil = 0
 
 -- | Return the length of the list.
 --
@@ -118,8 +118,8 @@ sum =
 length ::
   List a
   -> Int
-length =
-  error "todo: Course.List#length"
+length (_ :. xs) = 1 + length xs
+length Nil = 0
 
 -- | Map the given function on each element of the list.
 --
@@ -133,8 +133,8 @@ map ::
   (a -> b)
   -> List a
   -> List b
-map =
-  error "todo: Course.List#map"
+map _ Nil = Nil
+map f (x :. xs) = f x :. map f xs
 
 -- | Return elements satisfying the given predicate.
 --
@@ -150,8 +150,8 @@ filter ::
   (a -> Bool)
   -> List a
   -> List a
-filter =
-  error "todo: Course.List#filter"
+filter _ Nil = Nil
+filter f (x :. xs) = if f x then x :. (filter f xs) else filter f xs
 
 -- | Append two lists to a new list.
 --
@@ -169,8 +169,8 @@ filter =
   List a
   -> List a
   -> List a
-(++) (a1 :. Nil) a2 = a1 :. a2
-(++) (a1 :. xs) a2 = a1 :. (xs ++ a2)
+(++) Nil a2 = a2
+(++) a1 a2 = foldRight (:.) a2 a1
 
 infixr 5 ++
 
@@ -187,8 +187,7 @@ infixr 5 ++
 flatten ::
   List (List a)
   -> List a
-flatten (list :. Nil) = list
-flatten (list :. xs) = list ++ (flatten xs)
+flatten listlist = foldRight (++) Nil listlist
 
 -- | Map a function then flatten to a list.
 --
@@ -300,8 +299,7 @@ lengthGT4 =
 reverse ::
   List a
   -> List a
-reverse =
-  error "todo: Course.List#reverse"
+reverse x = foldLeft (\acc val -> val :. acc) Nil x
 
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
