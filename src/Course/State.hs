@@ -64,8 +64,7 @@ get = State (\s -> (s, s))
 put ::
   s
   -> State s ()
-put =
-  error "todo: Course.State#put"
+put newState = State (\s -> ((), newState))
 
 -- | Implement the `Functor` instance for `State s`.
 --
@@ -76,8 +75,10 @@ instance Functor (State s) where
     (a -> b)
     -> State s a
     -> State s b
-  (<$>) =
-    error "todo: Course.State#(<$>)"
+  (<$>) f (State g) = State $ \s ->
+    let
+      (a, st) = g s
+    in (f a, st)
 
 -- | Implement the `Applicative` instance for `State s`.
 --
@@ -93,14 +94,16 @@ instance Applicative (State s) where
   pure ::
     a
     -> State s a
-  pure =
-    error "todo: Course.State pure#instance (State s)"
+  pure a = State $ \s -> (a, s)
   (<*>) ::
     State s (a -> b)
     -> State s a
     -> State s b
-  (<*>) =
-    error "todo: Course.State (<*>)#instance (State s)"
+  (<*>) (State s1) (State s2) = State $ \s ->
+    let
+      (a1, st1) = s1 s
+      (a2, st2) = s2 st1
+    in (a1 a2, st2)
 
 -- | Implement the `Monad` instance for `State s`.
 --
@@ -117,8 +120,12 @@ instance Monad (State s) where
     (a -> State s b)
     -> State s a
     -> State s b
-  (=<<) =
-    error "todo: Course.State (=<<)#instance (State s)"
+  (=<<) f (State s1) = State $ \s ->
+    let
+      (a, st) = s1 s
+      State s2 = f a
+      (b, st1) = s2 st
+    in (b, st1)
 
 -- | Find the first element in a `List` that satisfies a given predicate.
 -- It is possible that no element is found, hence an `Optional` result.
