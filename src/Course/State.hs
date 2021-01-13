@@ -146,8 +146,8 @@ findM ::
   (a -> f Bool)
   -> List a
   -> f (Optional a)
-findM =
-  error "todo: Course.State#findM"
+findM _ Nil = pure Empty
+findM func (x :. xs) = func x >>= (\b -> if b then pure $ Full x else findM func xs)
 
 -- | Find the first element in a `List` that repeats.
 -- It is possible that no element repeats, hence an `Optional` result.
@@ -160,8 +160,16 @@ firstRepeat ::
   Ord a =>
   List a
   -> Optional a
-firstRepeat =
-  error "todo: Course.State#firstRepeat"
+firstRepeat list =
+  firstRepeatWithState (put S.empty) list
+  where
+    firstRepeatWithState state list = case list of
+      (y :. ys)  -> if S.member y set then Full y else firstRepeatWithState (put $ S.insert y set) ys
+      (y :. Nil) -> if S.member y set then Full y else firstRepeatWithState (put $ S.insert y set) Nil
+      Nil        -> Empty
+      where
+        set = exec state S.empty
+  
 
 -- | Remove all duplicate elements in a `List`.
 -- /Tip:/ Use `filtering` and `State` with a @Data.Set#Set@.
@@ -173,8 +181,15 @@ distinct ::
   Ord a =>
   List a
   -> List a
-distinct =
-  error "todo: Course.State#distinct"
+distinct list =
+  finish (put S.empty) list
+  where
+    finish state list = case list of
+      (y :. ys)  -> if S.member y set then res else y :. res
+        where
+          res = finish (put $ S.insert y set) ys
+          set = exec state S.empty
+      Nil        -> Nil
 
 -- | A happy number is a positive integer, where the sum of the square of its digits eventually reaches 1 after repetition.
 -- In contrast, a sad number (not a happy number) is where the sum of the square of its digits never reaches 1
@@ -200,5 +215,15 @@ distinct =
 isHappy ::
   Integer
   -> Bool
-isHappy =
-  error "todo: Course.State#isHappy"
+isHappy num =
+  finish (put S.empty) num
+  where
+    finish :: State (S.Set P.String) () -> Integer -> Bool
+    finish state nextNum
+      | sum == 1 = True
+      | S.member s set = False
+      | otherwise = finish (put $ S.insert s set) sum
+      where
+        set = exec state S.empty
+        s = show nextNum
+        sum = P.foldr (+) (0 :: Integer) [let n = digitToInt c in toInteger (n * n) | c <- s]
