@@ -160,7 +160,7 @@ eval' ::
   State' s a
   -> s
   -> a
-eval' s' s = let ExactlyOne a = evalT s' s in a
+eval' s' s = runExactlyOne $ evalT s' s
 
 -- | A `StateT` where the state also distributes into the produced value.
 --
@@ -169,8 +169,7 @@ eval' s' s = let ExactlyOne a = evalT s' s in a
 getT ::
   Applicative k =>
   StateT s k s
-getT =
-  error "todo: Course.StateT#getT"
+getT = StateT $ \s -> pure (s, s)
 
 -- | A `StateT` where the resulting state is seeded with the given value.
 --
@@ -183,8 +182,7 @@ putT ::
   Applicative k =>
   s
   -> StateT s k ()
-putT =
-  error "todo: Course.StateT#putT"
+putT s = StateT $ const $ pure ((), s)
 
 -- | Remove all duplicate elements in a `List`.
 --
