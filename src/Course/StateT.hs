@@ -63,14 +63,15 @@ instance Monad k => Applicative (StateT s k) where
   pure ::
     a
     -> StateT s k a
-  pure =
-    error "todo: Course.StateT pure#instance (StateT s k)"
+  pure a = StateT $ \s -> pure (a, s)
   (<*>) ::
     StateT s k (a -> b)
     -> StateT s k a
     -> StateT s k b
-  (<*>) =
-    error "todo: Course.StateT (<*>)#instance (StateT s k)"
+  (<*>) s1 s2 = StateT $ \s -> do
+    (f, state1) <- runStateT s1 s
+    (a, state2) <- runStateT s2 state1
+    pure (f a, state2)
 
 -- | Implement the `Monad` instance for @StateT s k@ given a @Monad k@.
 -- Make sure the state value is passed through in `bind`.
