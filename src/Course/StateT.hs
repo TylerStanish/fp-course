@@ -102,8 +102,9 @@ type State' s a =
 state' ::
   (s -> (a, s))
   -> State' s a
-state' =
-  error "todo: Course.StateT#state'"
+state' f = StateT $ \s ->
+  let (a, s1) = f s
+  in ExactlyOne (a, s1)
 
 -- | Provide an unwrapper for `State'` values.
 --
@@ -113,8 +114,9 @@ runState' ::
   State' s a
   -> s
   -> (a, s)
-runState' =
-  error "todo: Course.StateT#runState'"
+runState' s' s =
+  let ExactlyOne (a, s1) = (runStateT s') s
+  in (a, s1)
 
 -- | Run the `StateT` seeded with `s` and retrieve the resulting state.
 --
@@ -125,8 +127,7 @@ execT ::
   StateT s k a
   -> s
   -> k s
-execT =
-  error "todo: Course.StateT#execT"
+execT st s = snd <$> runStateT st s
 
 -- | Run the `State'` seeded with `s` and retrieve the resulting state.
 --
@@ -136,8 +137,9 @@ exec' ::
   State' s a
   -> s
   -> s
-exec' =
-  error "todo: Course.StateT#exec'"
+exec' s' s = 
+  let ExactlyOne (a, s1) = runStateT s' s
+  in s1
 
 -- | Run the `StateT` seeded with `s` and retrieve the resulting value.
 --
@@ -148,8 +150,7 @@ evalT ::
   StateT s k a
   -> s
   -> k a
-evalT =
-  error "todo: Course.StateT#evalT"
+evalT st s = fst <$> runStateT st s
 
 -- | Run the `State'` seeded with `s` and retrieve the resulting value.
 --
@@ -159,8 +160,7 @@ eval' ::
   State' s a
   -> s
   -> a
-eval' =
-  error "todo: Course.StateT#eval'"
+eval' s' s = let ExactlyOne a = evalT s' s in a
 
 -- | A `StateT` where the state also distributes into the produced value.
 --
