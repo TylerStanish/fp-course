@@ -267,8 +267,7 @@ lift1 = (<$>)
   k a
   -> k b
   -> k b
-(*>) =
-  error "todo: Course.Applicative#(*>)"
+(*>) ka kb = (\_ b -> b) <$> ka <*> kb
 
 -- | Apply, discarding the value of the second argument.
 -- Pronounced, left apply.
@@ -293,8 +292,7 @@ lift1 = (<$>)
   k b
   -> k a
   -> k b
-(<*) =
-  error "todo: Course.Applicative#(<*)"
+(<*) ka kb = (\a _ -> a) <$> ka <*> kb
 
 -- | Sequences a list of structures to a structure of list.
 --
@@ -316,8 +314,9 @@ sequence ::
   Applicative k =>
   List (k a)
   -> k (List a)
-sequence =
-  error "todo: Course.Applicative#sequence"
+sequence Nil = pure Nil
+sequence (kx :. xs) = (:.) <$> kx <*> rest
+  where rest = sequence xs
 
 -- | Replicate an effect a given number of times.
 --
@@ -370,8 +369,10 @@ filtering ::
   (a -> k Bool)
   -> List a
   -> k (List a)
-filtering =
-  error "todo: Course.Applicative#filtering"
+filtering = error "hi"
+--filtering f Nil = Nil
+--filtering f (x :. Nil) = (:.) <$> f x <*> Nil
+--filtering f (x :. xs) = 
 
 -----------------------
 -- SUPPORT LIBRARIES --
